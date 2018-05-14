@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="Raspberry Pi">
+    <serverData>
+      <paths name="Raspberry Pi">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/var/www/html/onkyori_kiosk" local="$PROJECT_DIR$" web="/onkyori_kiosk" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

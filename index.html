@@ -1,0 +1,200 @@
+<!--
+    Author: jun10000 (https://github.com/jun10000)
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KioskPi</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #main {
+            background-color: black;
+            color: white;
+            text-align: center;
+            vertical-align: middle;
+            height: 100%;
+        }
+
+        #clock {
+            font-size: 6em;
+        }
+
+        #controlbar {
+            display: none;
+        }
+
+        #controlbar_cell {
+            display: flex;
+            align-items: center;
+        }
+
+        #controlbar_cell button {
+            width: 15vh;
+            height: 15vh;
+            margin: 1vh 0 1vh 1vh;
+            font-size: 7vh;
+            color: white;
+            background: linear-gradient(to bottom, #82e0ff, #00bfff);
+            border-width: 2px;
+            border-image-source: linear-gradient(to top, #82e0ff, #00bfff);
+            border-image-slice: 1;
+            outline: none;
+        }
+
+    </style>
+    <script type="text/javascript">
+
+        function switch_displaystyle(elem_id, js_value) {
+            let elem = document.getElementById(elem_id);
+            elem.style.display = (elem.style.display === "") ? js_value : "";
+        }
+
+        function switch_audioplaying(delay) {
+            setTimeout(function () {
+                let elem_player = document.getElementById("audioplayer");
+                let elem_button = document.getElementById("audio_button");
+
+                if (elem_player.paused) {
+                    elem_player.play().then(function () {
+                        elem_button.innerText = "■";
+                    });
+                } else {
+                    elem_player.pause();
+                    elem_player.currentTime = 0;
+                    elem_button.innerText = "▶︎";
+                }
+            }, delay);
+        }
+
+        function switch_brightness() {
+            let req = new XMLHttpRequest();
+            req.open("GET", "cmd.py?mode=switch_brightness", true);
+            req.send(null);
+        }
+
+        function update_clock(){
+            let now = new Date();
+            let hour = now.getHours();
+            let hour_exp = (hour < 12) ? hour : hour - 12;
+            let minute = now.getMinutes();
+            let minute_exp = (minute >= 10) ? minute : "0" + minute;
+            let second = now.getSeconds();
+            let second_exp = (second >= 10) ? second : "0" + second;
+            let am_pm = (hour < 12) ? "AM" : "PM";
+            document.getElementById("clock").innerText =
+                am_pm + " " + hour_exp + ":" + minute_exp + ":" + second_exp;
+        }
+
+        let req_onkyori = null;
+        let req_recent_onkyori = null;
+        let recent_onkyori_record = null;
+        let is_requesting_onkyori = false;
+
+        function handler_get_recent_onkyori() {
+            if (req_recent_onkyori.readyState === 4 && req_recent_onkyori.status === 200) {
+                let result = JSON.parse(req_recent_onkyori.responseText);
+                recent_onkyori_record = result[0];
+
+                is_requesting_onkyori = false;
+            }
+        }
+
+        function handler_execute_onkyori() {
+            if (req_onkyori.readyState === 4 && req_onkyori.status === 200) {
+                let result = JSON.parse(req_onkyori.responseText);
+                if (result.length > 0) {
+                    recent_onkyori_record = result[result.length - 1];
+                }
+                for (let line of result) {
+                    switch (line["name"]) {
+                        case "PowerOn":
+                            switch_brightness();
+                            switch_audioplaying(2500);
+                            break;
+                        case "PowerOff":
+                            switch_brightness();
+                            switch_audioplaying(2500);
+                            break;
+                    }
+                }
+
+                is_requesting_onkyori = false;
+            }
+        }
+
+        function listen_recent_onkyori() {
+            req_recent_onkyori = new XMLHttpRequest();
+            req_recent_onkyori.open("GET", "cmd.py?mode=listen_recent_onkyori", true);
+            req_recent_onkyori.onreadystatechange = handler_get_recent_onkyori;
+            req_recent_onkyori.send(null);
+        }
+
+        function listen_onkyori() {
+            if (recent_onkyori_record === null) {
+                listen_recent_onkyori();
+            } else {
+                let id_min = recent_onkyori_record["id"] + 1;
+
+                req_onkyori = new XMLHttpRequest();
+                req_onkyori.open("GET", "cmd.py?mode=listen_onkyori&id_min=" + id_min, true);
+                req_onkyori.onreadystatechange = handler_execute_onkyori;
+                req_onkyori.send(null);
+            }
+        }
+
+        function start_clock() {
+            update_clock();
+            setTimeout(start_clock, 1000);
+        }
+
+        function start_listening_onkyori() {
+            if (is_requesting_onkyori === false) {
+                is_requesting_onkyori = true;
+                listen_onkyori();
+            }
+            setTimeout(start_listening_onkyori, 500);
+        }
+
+        window.addEventListener("load", function() {
+            document.getElementById("main").addEventListener("click", function() {
+                switch_displaystyle("controlbar", "initial");
+            });
+            document.getElementById("audio_button").addEventListener("click", function () {
+                switch_audioplaying(0);
+            });
+            document.getElementById("brightness_button").addEventListener("click", function () {
+                switch_brightness();
+            });
+
+            start_clock();
+            start_listening_onkyori();
+        });
+
+    </script>
+</head>
+<body>
+<table id="container">
+    <tr>
+        <td id="main">
+            <span id="clock">-- --:--:--</span>
+        </td>
+    </tr>
+    <tr id="controlbar">
+        <td id="controlbar_cell">
+            <audio id="audioplayer" src="music/1.flac" preload="auto" loop></audio>
+            <button id="audio_button">▶︎</button>
+            <button id="brightness_button">☀</button>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
