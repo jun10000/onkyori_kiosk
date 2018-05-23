@@ -21,7 +21,49 @@ This dashboard needs [onkyori_common] module to operate.
 (I'm writing this.)
 
 ## Install
-(I'm writing this.)
+1. Place files into Raspberry Pi
+    1. Login to Raspberry Pi.
+    1. Create directory: '/var/www/html/onkyori_kiosk/'.
+    1. Place this repository files to '/var/www/html/onkyori_kiosk/'.
+    1. Add execute permission to 'cmd.py'.
+    1. Rewrite '.htaccess' to fit your environment.
+    1. Create directory: '/var/www/html/onkyori_kiosk/music/'.
+    1. Place your music file (Flac format) as '1.flac' into '/var/www/html/onkyori_kiosk/music/'.
+1. Set Apache settings
+    1. Rewrite '/etc/apache2/apache2.conf' to the following lines.
+        ```apacheconfig
+        <Directory /var/www/>
+        Options +ExecCGI
+        AllowOverride All
+        Require all granted
+        </Directory>
+        ```
+    1. Rewrite '/etc/apache2/mods-enabled/mime.conf' to the following lines.  
+        ```apacheconfig
+        #AddHandler cgi-script .cgi
+        AddHandler cgi-script .cgi .py
+        ```
+1. Set autostart file
+    1. Rewrite '~/.config/lxsession/LXDE-pi/autostart' to the following lines.  
+        ```
+        @lxpanel --profile LXDE-pi
+        @pcmanfm --desktop --profile LXDE-pi
+        #@xscreensaver -no-splash
+        @point-rpi
+        
+        # Disable Screensaver
+        @xset s off
+        
+        # Disable DPMS Features
+        @xset -dpms
+        
+        # Change Brightness Permission
+        @sudo chmod 666 /sys/class/backlight/rpi_backlight/brightness
+        
+        # Start Chromium in Kiosk Mode
+        @chromium-browser --noerrdialogs --kiosk --incognito http://127.0.0.1/onkyori_kiosk/
+        ```
+    1. Reboot your Raspberry Pi.
 
 ## Licence
 [GNU General Public License v3.0](https://github.com/jun10000/onkyori_kiosk/blob/master/LICENSE)
