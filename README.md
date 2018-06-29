@@ -7,7 +7,7 @@ onkyori_*** are modules what enable cooperation with the Onkyo RI system.
 [![Raspberry Pi Synchronise - YouTube](.readme/synchronise_prev.png)](https://www.youtube.com/watch?v=-5aI0-sRg24)
 
 The onkyori_kiosk is the dashboard what shows the clock etc., and occurs something when Onkyo-RI signal has registered to database.  
-This dashboard needs [onkyori_common] module to operate.
+This dashboard needs [onkyori_common] module (Ver. 0.4 or above) to operate.
 
 ## Requirement
 - Requirements of [onkyori_common]
