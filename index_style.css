@@ -1,0 +1,42 @@
+/*
+/* Author: jun10000 (https://github.com/jun10000)
+*/
+
+#container {
+    width: 100vw;
+    height: 100vh;
+}
+
+#clockArea {
+    background-color: black;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    height: 100%;
+}
+
+#clock {
+    font-size: 6em;
+}
+
+#controlBar {
+    display: none;
+}
+
+#controlBar > td {
+    display: flex;
+    align-items: center;
+}
+
+#controlBar > td button {
+    width: 15vh;
+    height: 15vh;
+    margin: 1vh 0 1vh 1vh;
+    font-size: 7vh;
+    color: #e6faff;
+    background: #00ace6;
+    border-width: 2px;
+    border-image-source: linear-gradient(to top, #0099cc, #00c4ff);
+    border-image-slice: 1;
+    outline: none;
+}
