@@ -2,6 +2,16 @@
 // Author: jun10000 (https://github.com/jun10000)
 //
 
+class Pi
+{
+    static execute (mode)
+    {
+        let req = new XMLHttpRequest();
+        req.open("GET", "cmd.py?mode=" + mode, true);
+        req.send(null);
+    }
+}
+
 class ControlBar
 {
     static showOrHide()
@@ -13,34 +23,64 @@ class ControlBar
 
 class Audio
 {
-    static playOrStop (delay)
+    static play (delay)
     {
         let proc = function ()
         {
-            let elem_player = document.getElementById("audioplayer");
-            let elem_button = document.getElementById("audio_button");
+            let elem_AudioController = document.getElementById("audioController");
+            let elem_PlayAudioButton = document.getElementById("playAudioButton");
 
-            if (elem_player.paused) {
-                elem_player.play().then(function () {
-                    elem_button.innerText = "■";
+            if (elem_AudioController.paused) {
+                elem_AudioController.play().then(function () {
+                    elem_PlayAudioButton.innerText = "■";
                 });
-            } else {
-                elem_player.pause();
-                elem_player.currentTime = 0;
-                elem_button.innerText = "▶︎";
             }
         };
         setTimeout(proc, delay);
+    }
+
+    static stop (delay)
+    {
+        let proc = function ()
+        {
+            let elem_AudioController = document.getElementById("audioController");
+            let elem_PlayAudioButton = document.getElementById("playAudioButton");
+
+            if (!elem_AudioController.paused) {
+                elem_AudioController.pause();
+                elem_AudioController.currentTime = 0;
+                elem_PlayAudioButton.innerText = "▶︎";
+            }
+        };
+        setTimeout(proc, delay);
+    }
+
+    static playOrStop (delay)
+    {
+        let elem_AudioController = document.getElementById("audioController");
+        if (elem_AudioController.paused) {
+            Audio.play(delay);
+        } else {
+            Audio.stop(delay);
+        }
     }
 }
 
 class Screen
 {
+    static toLighten ()
+    {
+        Pi.execute("to_lighten");
+    }
+
+    static toDarken ()
+    {
+        Pi.execute("to_darken");
+    }
+
     static switchBrightness()
     {
-        let req = new XMLHttpRequest();
-        req.open("GET", "cmd.py?mode=switch_brightness", true);
-        req.send(null);
+        Pi.execute("switch_brightness");
     }
 }
 
@@ -125,12 +165,12 @@ class OnkyoRIListener
                         switch (line["name"])
                         {
                             case "PowerOnTimer":
-                                Screen.switchBrightness();
-                                Audio.playOrStop(2500);
+                                Screen.toLighten();
+                                Audio.play(2500);
                                 break;
                             case "PowerOff":
-                                Screen.switchBrightness();
-                                Audio.playOrStop(2500);
+                                Screen.toDarken();
+                                Audio.stop(0);
                                 break;
                         }
                     }
@@ -150,8 +190,8 @@ class OnkyoRIListener
 window.addEventListener("load", function ()
 {
     document.getElementById("clockArea").addEventListener("click", function () { ControlBar.showOrHide(); });
-    document.getElementById("audio_button").addEventListener("click", function () { Audio.playOrStop(0); });
-    document.getElementById("brightness_button").addEventListener("click", function () { Screen.switchBrightness(); });
+    document.getElementById("playAudioButton").addEventListener("click", function () { Audio.playOrStop(0); });
+    document.getElementById("switchBrightnessButton").addEventListener("click", function () { Screen.switchBrightness(); });
 
     Clock.start();
     OnkyoRIListener.start();

@@ -5,7 +5,6 @@
 #
 
 import cgi
-import subprocess
 import pymysql
 import yaml
 import json
@@ -17,8 +16,19 @@ class DateTimeJsonEncoder(json.JSONEncoder):
             return obj.isoformat()
         return json.JSONEncoder.default(self, obj)
 
-def execute_shell(cmdline):
-    return subprocess.run(cmdline, shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
+class Display:
+    _FILE_BRIGHTNESS = '/sys/class/backlight/rpi_backlight/brightness'
+
+    @staticmethod
+    def get_brightness():
+        with open(Display._FILE_BRIGHTNESS, 'r') as file:
+            return int(file.read())
+
+    @staticmethod
+    def set_brightness(value):
+        with open(Display._FILE_BRIGHTNESS, 'w') as file:
+            file.write(str(value))
+            file.truncate()
 
 print('Content-Type: application/json')
 print()
@@ -30,13 +40,13 @@ data = cgi.FieldStorage()
 mode = data.getvalue('mode', '')
 
 if mode == 'switch_brightness':
-    file_path = '/sys/class/backlight/rpi_backlight/brightness'
-    with open(file_path, 'r+') as file:
-        brightness_old = int(file.read())
-        brightness_new = 255 if brightness_old != 255 else 12
-        file.seek(0)
-        file.write(str(brightness_new))
-        file.truncate()
+    old_value = Display.get_brightness()
+    new_value = 255 if old_value != 255 else 12
+    Display.set_brightness(new_value)
+elif mode == 'to_lighten':
+    Display.set_brightness(255)
+elif mode == 'to_darken':
+    Display.set_brightness(12)
 elif mode == 'listen_onkyori':
     arg_id_min = data.getvalue('id_min', 0)
     arg_id_max = data.getvalue('id_max', 1000000000)
