@@ -4,7 +4,7 @@
 onkyori_*** are modules what enable cooperation with the Onkyo RI system.
 
 ## Description
-[![Raspberry Pi Synchronise - YouTube](.readme/synchronise_prev.png)](https://www.youtube.com/watch?v=-5aI0-sRg24)
+![Description Video](.readme/synchronise.gif)
 
 The onkyori_kiosk is the dashboard what shows the clock etc., and occurs something when Onkyo-RI signal has registered to database.  
 This dashboard needs [onkyori_common] module (Ver. 0.4 or above) to operate.
@@ -24,7 +24,6 @@ This dashboard needs [onkyori_common] module (Ver. 0.4 or above) to operate.
     When Onkyo RI equipment powers on, Kiosk terminal also works on.  
     (Please view the video in the 'Description' section.)
 - Manual operation  
-    [![Raspberry Pi Manual - YouTube](.readme/manual_prev.png)](https://www.youtube.com/watch?v=LCoxE3PhgIc)
     When the kiosk screen is touched, the bottom control bar is shown/hidden.  
     The control bar includes music play button, and brightness switch button.  
 
